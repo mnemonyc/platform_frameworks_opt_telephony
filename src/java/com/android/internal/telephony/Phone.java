@@ -2094,8 +2094,4 @@ public interface Phone {
      */
     public Locale getLocaleFromSimAndCarrierPrefs();
 
-    /**
-     * Returns the modem activity information
-     */
-    public void getModemActivityInfo(Message response);
 }

@@ -2598,7 +2598,6 @@ public class RIL extends BaseCommands implements CommandsInterface {
             case RIL_REQUEST_SHUTDOWN: ret = responseVoid(p); break;
             case RIL_REQUEST_GET_RADIO_CAPABILITY: ret =  responseRadioCapability(p); break;
             case RIL_REQUEST_SET_RADIO_CAPABILITY: ret =  responseRadioCapability(p); break;
-            case RIL_REQUEST_GET_ACTIVITY_INFO: ret = responseActivityData(p); break;
             default:
                 throw new RuntimeException("Unrecognized solicited response: " + rr.mRequest);
             //break;
@@ -2669,11 +2668,6 @@ public class RIL extends BaseCommands implements CommandsInterface {
                     }
                     break;
                 }
-                case RIL_REQUEST_GET_ACTIVITY_INFO:
-                    ret = new ModemActivityInfo(0, 0, 0,
-                            new int [ModemActivityInfo.TX_POWER_LEVELS], 0, 0);
-                    error = 0;
-                    break;
             }
 
             if (error != 0) rr.onError(error, ret);
@@ -4178,7 +4172,6 @@ public class RIL extends BaseCommands implements CommandsInterface {
                     return "RIL_REQUEST_SET_RADIO_CAPABILITY";
             case RIL_REQUEST_GET_RADIO_CAPABILITY:
                     return "RIL_REQUEST_GET_RADIO_CAPABILITY";
-            case RIL_REQUEST_GET_ACTIVITY_INFO: return "RIL_REQUEST_GET_ACTIVITY_INFO";
             default: return "<unknown request>";
         }
     }
@@ -4785,14 +4778,4 @@ public class RIL extends BaseCommands implements CommandsInterface {
         send(rr);
     }
 
-    /**
-    * @hide
-    */
-    public void getModemActivityInfo(Message response) {
-        RILRequest rr = RILRequest.obtain(RIL_REQUEST_GET_ACTIVITY_INFO, response);
-        if (RILJ_LOGD) {
-            riljLog(rr.serialString() + "> " + requestToString(rr.mRequest));
-        }
-        send(rr);
-    }
 }

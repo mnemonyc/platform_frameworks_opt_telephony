@@ -1783,8 +1783,4 @@ public final class SimulatedCommands extends BaseCommands
         unimplemented(result);
     }
 
-    @Override
-    public void getModemActivityInfo(Message result) {
-        unimplemented(result);
-    }
 }
