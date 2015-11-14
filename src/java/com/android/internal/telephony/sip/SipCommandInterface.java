@@ -623,4 +623,5 @@ class SipCommandInterface extends BaseCommands implements CommandsInterface {
     public void pullLceData(Message result) {
     }
 
+    public boolean needsOldRilFeature(String feature) { return false; }
 }

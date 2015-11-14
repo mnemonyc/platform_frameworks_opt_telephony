@@ -1783,4 +1783,5 @@ public final class SimulatedCommands extends BaseCommands
         unimplemented(result);
     }
 
+    public boolean needsOldRilFeature(String feature) { return false; }
 }
