@@ -3507,7 +3507,6 @@ public class RIL extends BaseCommands implements CommandsInterface {
         return false;
     }
 
-
     protected Object
     responseIccCardStatus(Parcel p) {
         IccCardApplicationStatus appStatus;
