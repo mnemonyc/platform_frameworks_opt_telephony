@@ -2012,8 +2012,17 @@ public interface CommandsInterface {
     void unregisterForLceInfo(Handler h);
 
     /**
+     *
+     * Get modem activity info and stats
+     *
+     * @param result Callback message contains the modem activity information
+     */
+    public void getModemActivityInfo(Message result);
+
+    /**
      * @hide
      * CM-specific: Ask the RIL about the presence of back-compat flags
      */
     public boolean needsOldRilFeature(String feature);
+
 }

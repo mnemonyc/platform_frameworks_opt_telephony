@@ -2517,6 +2517,11 @@ public abstract class PhoneBase extends Handler implements Phone {
         return mLceStatus;
     }
 
+    @Override
+    public void getModemActivityInfo(Message response)  {
+        mCi.getModemActivityInfo(response);
+    }
+
     /**
      * Starts LCE service after radio becomes available.
      * LCE service state may get destroyed on the modem when radio becomes unavailable.
