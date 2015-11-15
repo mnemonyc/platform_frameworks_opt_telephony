@@ -2639,6 +2639,10 @@ public class RIL extends BaseCommands implements CommandsInterface {
             case RIL_REQUEST_SHUTDOWN: ret = responseVoid(p); break;
             case RIL_REQUEST_GET_RADIO_CAPABILITY: ret =  responseRadioCapability(p); break;
             case RIL_REQUEST_SET_RADIO_CAPABILITY: ret =  responseRadioCapability(p); break;
+            case RIL_REQUEST_START_LCE: ret = responseLceStatus(p); break;
+            case RIL_REQUEST_STOP_LCE: ret = responseLceStatus(p); break;
+            case RIL_REQUEST_PULL_LCEDATA: ret = responseLceData(p); break;
+            case RIL_REQUEST_GET_ACTIVITY_INFO: ret = responseActivityData(p); break;
             default:
                 throw new RuntimeException("Unrecognized solicited response: " + rr.mRequest);
             //break;
@@ -2709,6 +2713,11 @@ public class RIL extends BaseCommands implements CommandsInterface {
                     }
                     break;
                 }
+                case RIL_REQUEST_GET_ACTIVITY_INFO:
+                    ret = new ModemActivityInfo(0, 0, 0,
+                            new int [ModemActivityInfo.TX_POWER_LEVELS], 0, 0);
+                    error = 0;
+                    break;
             }
 
             if (error != 0) rr.onError(error, ret);
@@ -2883,6 +2892,7 @@ public class RIL extends BaseCommands implements CommandsInterface {
                     ret = responseRadioCapability(p); break;
             case RIL_UNSOL_ON_SS: ret =  responseSsData(p); break;
             case RIL_UNSOL_STK_CC_ALPHA_NOTIFY: ret =  responseString(p); break;
+            case RIL_UNSOL_LCEDATA_RECV: ret = responseLceData(p); break;
 
             default:
                 throw new RuntimeException("Unrecognized unsol response: " + response);
@@ -3307,6 +3317,13 @@ public class RIL extends BaseCommands implements CommandsInterface {
                 if (mCatCcAlphaRegistrant != null) {
                     mCatCcAlphaRegistrant.notifyRegistrant(
                                         new AsyncResult (null, ret, null));
+                }
+                break;
+            case RIL_UNSOL_LCEDATA_RECV:
+                if (RILJ_LOGD) unsljLogRet(response, ret);
+
+                if (mLceInfoRegistrant != null) {
+                    mLceInfoRegistrant.notifyRegistrant(new AsyncResult(null, ret, null));
                 }
                 break;
         }
@@ -4242,6 +4259,10 @@ public class RIL extends BaseCommands implements CommandsInterface {
                     return "RIL_REQUEST_SET_RADIO_CAPABILITY";
             case RIL_REQUEST_GET_RADIO_CAPABILITY:
                     return "RIL_REQUEST_GET_RADIO_CAPABILITY";
+            case RIL_REQUEST_START_LCE: return "RIL_REQUEST_START_LCE";
+            case RIL_REQUEST_STOP_LCE: return "RIL_REQUEST_STOP_LCE";
+            case RIL_REQUEST_PULL_LCEDATA: return "RIL_REQUEST_PULL_LCEDATA";
+            case RIL_REQUEST_GET_ACTIVITY_INFO: return "RIL_REQUEST_GET_ACTIVITY_INFO";
             default: return "<unknown request>";
         }
     }
@@ -4303,6 +4324,7 @@ public class RIL extends BaseCommands implements CommandsInterface {
                     return "RIL_UNSOL_RADIO_CAPABILITY";
             case RIL_UNSOL_ON_SS: return "UNSOL_ON_SS";
             case RIL_UNSOL_STK_CC_ALPHA_NOTIFY: return "UNSOL_STK_CC_ALPHA_NOTIFY";
+            case RIL_UNSOL_LCEDATA_RECV: return "UNSOL_LCE_INFO_RECV";
             default: return "<unknown response>";
         }
     }
@@ -4880,4 +4902,47 @@ public class RIL extends BaseCommands implements CommandsInterface {
         send(rr);
     }
 
+    @Override
+    public void startLceService(int reportIntervalMs, boolean pullMode, Message response) {
+        RILRequest rr = RILRequest.obtain(RIL_REQUEST_START_LCE, response);
+        /** solicited command argument: reportIntervalMs, pullMode. */
+        rr.mParcel.writeInt(2);
+        rr.mParcel.writeInt(reportIntervalMs);
+        rr.mParcel.writeInt(pullMode ? 1: 0);  // PULL mode: 1; PUSH mode: 0;
+
+        if (RILJ_LOGD) {
+            riljLog(rr.serialString() + "> " + requestToString(rr.mRequest));
+        }
+
+        send(rr);
+    }
+
+    @Override
+    public void stopLceService(Message response) {
+        RILRequest rr = RILRequest.obtain(RIL_REQUEST_STOP_LCE, response);
+        if (RILJ_LOGD) {
+            riljLog(rr.serialString() + "> " + requestToString(rr.mRequest));
+        }
+        send(rr);
+    }
+
+    @Override
+    public void pullLceData(Message response) {
+        RILRequest rr = RILRequest.obtain(RIL_REQUEST_PULL_LCEDATA, response);
+        if (RILJ_LOGD) {
+            riljLog(rr.serialString() + "> " + requestToString(rr.mRequest));
+        }
+        send(rr);
+    }
+
+    /**
+    * @hide
+    */
+    public void getModemActivityInfo(Message response) {
+        RILRequest rr = RILRequest.obtain(RIL_REQUEST_GET_ACTIVITY_INFO, response);
+        if (RILJ_LOGD) {
+            riljLog(rr.serialString() + "> " + requestToString(rr.mRequest));
+        }
+        send(rr);
+    }
 }
